@@ -1,37 +1,25 @@
-import { RtcTokenBuilder, RtcRole } from "agora-access-token";
+import crypto from "crypto";
 
 export default function handler(req, res) {
   try {
-    const { channel, uid } = req.query;
+    const { roomName, userId, role } = req.query;
 
-    if (!channel) {
-      return res.status(400).json({ error: "Missing channel" });
+    if (!roomName || !userId || !role) {
+      return res.status(400).json({ error: "Missing parameters" });
     }
 
-    const appId = process.env.APP_ID;
-    const appCertificate = process.env.APP_CERT;
+    // Generate a random token
+    const token = crypto.randomBytes(16).toString("hex");
 
-    if (!appId || !appCertificate) {
-      return res.status(500).json({ error: "Server missing APP_ID or APP_CERT" });
-    }
-
-    const role = RtcRole.PUBLISHER;
-    const expirationTimeInSeconds = 3600;
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const privilegeExpire = currentTimestamp + expirationTimeInSeconds;
-
-    const token = RtcTokenBuilder.buildTokenWithUid(
-      appId,
-      appCertificate,
-      channel,
-      uid || 0,
+    return res.status(200).json({
+      roomName,
+      userId,
       role,
-      privilegeExpire
-    );
+      token
+    });
 
-    return res.status(200).json({ token });
-  } catch (err) {
-    console.error("Token error:", err);
-    return res.status(500).json({ error: "Failed to generate token" });
+  } catch (error) {
+    console.error("generateToken error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }

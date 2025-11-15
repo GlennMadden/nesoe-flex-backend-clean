@@ -1,19 +1,20 @@
 export default function handler(req, res) {
   try {
-    const { roomName, userName, role } = req.query;
+    const { roomName, userName, roleType } = req.query;
 
-    if (!roomName || !userName) {
-      return res.status(400).json({ error: "Missing roomName or userName" });
+    if (!roomName || !userName || !roleType) {
+      return res.status(400).json({ error: "Missing parameters" });
     }
 
     return res.status(200).json({
-      allowed: true,
       roomName,
       userName,
-      role: role || "student"
+      roleType,
+      status: "ENTRY_OK"
     });
-  } catch (err) {
-    console.error("Room entry error:", err);
-    return res.status(500).json({ error: "Room entry failed" });
+
+  } catch (error) {
+    console.error("roomEntry error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }

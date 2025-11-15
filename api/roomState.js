@@ -6,12 +6,18 @@ export default function handler(req, res) {
       return res.status(400).json({ error: "Missing roomName" });
     }
 
-    return res.status(200).json({
+    // Fake room state
+    const state = {
       roomName,
-      state: "active"
-    });
-  } catch (err) {
-    console.error("Room state error:", err);
-    return res.status(500).json({ error: "Room state lookup failed" });
+      participants: 2,
+      active: true,
+      timestamp: Date.now()
+    };
+
+    return res.status(200).json(state);
+
+  } catch (error) {
+    console.error("roomState error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
